@@ -1,0 +1,113 @@
+[
+  {
+    "title": "Producto de prueba 1",
+    "description": "Este es un producto de prueba 1",
+    "price": 200,
+    "thumbnail": [],
+    "id": "1",
+    "stock": 25,
+    "code": "abc1234",
+    "img": "img/avengers_combo.jpg"
+  },
+  {
+    "title": "Producto de prueba 2",
+    "description": "Este es un producto de prueba 2",
+    "price": 250,
+    "thumbnail": [],
+    "id": "2",
+    "stock": 2,
+    "code": "abc1234",
+    "img": "img/batman_superman_combo.jpg"
+  },
+  {
+    "title": "Producto de prueba 3",
+    "description": "Este es un producto de prueba 3",
+    "price": 180,
+    "thumbnail": [],
+    "id": "3",
+    "stock": 15,
+    "code": "abc1234",
+    "img": "img/capitan_america.jpg"
+  },
+  {
+    "title": "Producto de prueba 4",
+    "description": "Este es un producto de prueba 4",
+    "price": 300,
+    "thumbnail": [],
+    "id": "4",
+    "stock": 10,
+    "code": "abc1234"
+  },
+  {
+    "title": "Producto de prueba 5",
+    "description": "Este es un producto de prueba 5",
+    "price": 220,
+    "thumbnail": [],
+    "id": "5",
+    "stock": 30,
+    "code": "abc1234"
+  },
+  {
+    "title": "Producto de prueba 6",
+    "description": "Este es un producto de prueba 6",
+    "price": 190,
+    "thumbnail": [],
+    "id": "6",
+    "stock": 5,
+    "code": "abc1234"
+  },
+  {
+    "title": "Producto de prueba 7",
+    "description": "Este es un producto de prueba 7",
+    "price": 270,
+    "thumbnail": [],
+    "id": "7",
+    "stock": 20,
+    "code": "abc1234"
+  },
+  {
+    "title": "Producto de prueba 8",
+    "description": "Este es un producto de prueba 8",
+    "price": 240,
+    "thumbnail": [],
+    "id": "8",
+    "stock": 8,
+    "code": "abc1234"
+  },
+  {
+    "title": "Producto de prueba 9",
+    "description": "Este es un producto de prueba 9",
+    "price": 260,
+    "thumbnail": [],
+    "id": "9",
+    "stock": 18,
+    "code": "abc1234"
+  },
+  {
+    "title": "Producto de prueba 10",
+    "description": "Este es un producto de prueba 10",
+    "price": 310,
+    "thumbnail": [],
+    "id": "10",
+    "stock": 12,
+    "code": "abc1234"
+  },
+  {
+    "title": "Prueba desde la web 1",
+    "description": "Prueba desde la web 1",
+    "price": "100",
+    "stock": "15",
+    "img": "img/capitan_america.jpg",
+    "code": "abc1234",
+    "id": "8523abd5698e6aaa499d"
+  },
+  {
+    "title": "Prueba desde la web 2",
+    "description": "Prueba desde la web 2",
+    "price": "120",
+    "stock": "14",
+    "img": "img/avengers_combo.jpg",
+    "code": "abc1234",
+    "id": "9e17e1f8551c977a6c33"
+  }
+]
