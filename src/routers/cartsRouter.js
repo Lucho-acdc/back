@@ -1,13 +1,12 @@
 import express from 'express';
-import { CartManager } from '../cartManager.js';
+import cartsModel from '../models/cartsModel.js';
 
 const cartsRouter = express.Router();
-const cartManager = new CartManager();
 
 cartsRouter.post('/', async (req, res) => {
   try {
     const newCart = req.body;
-    await cartManager.createCart(newCart);
+    await cartsModel.create(newCart);
     res.status(201).json({ message: 'Cart created successfully' });
   } catch (error) {
     console.error(error);
@@ -18,7 +17,7 @@ cartsRouter.post('/', async (req, res) => {
 cartsRouter.get('/:cid', async (req, res) => {
   try {
     const cartId = req.params.cid;
-    const cart = await cartManager.getCartById(cartId);
+    const cart = await cartsModel.findById(cartId);
     
     if (cart) {
       res.json(cart);
@@ -37,12 +36,26 @@ cartsRouter.post('/:cid/product/:pid', async (req, res) => {
     const productId = req.params.pid;
     const quantity = req.body.quantity || 1;
     
-    await cartManager.addProductToCart(cartId, productId, quantity);
+    const cart = await cartsModel.findById(cartId);
+    if (!cart) {
+      return res.status(404).json({ message: 'Cart not found' });
+    }
+
+    const productExist = cart.products.findIndex(p => p.id_prod.toString() === productId);
+
+    if (productExist > -1) {
+      cart.products[productExist].quantity = quantity;
+    } else {
+      cart.products.push({ id_prod: productId, quantity });
+    }
+
+    await cart.save();
     res.status(201).json({ message: 'Product added to cart successfully' });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
+
 
 export default cartsRouter;

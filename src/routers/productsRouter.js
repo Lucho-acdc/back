@@ -1,13 +1,11 @@
 import express from 'express';
-import { ProductManager } from '../productManager.js';
+import productModel from "../models/productModel.js"
 
 const productsRouter = express.Router();
-const productManager = new ProductManager();
 
 productsRouter.get('/', async (req, res) => {
   try {
-    const limit = req.query.limit;
-    const products = await productManager.getAllProducts(limit);
+    const products = await productModel.find();
     res.json(products);
   } catch (error) {
     console.error(error);
@@ -18,7 +16,7 @@ productsRouter.get('/', async (req, res) => {
 productsRouter.get('/:pid', async (req, res) => {
   try {
     const productId = req.params.pid;
-    const product = await productManager.getProductById(productId);
+    const product = await productModel.findById(productId);
     
     if (product) {
       res.json(product);
@@ -34,7 +32,7 @@ productsRouter.get('/:pid', async (req, res) => {
 productsRouter.post('/', async (req, res) => {
   try {
     const newProduct = req.body;
-    await productManager.addProduct(newProduct);
+    await productModel.create(newProduct);
     res.status(201).json({ message: 'Product added successfully' });
   } catch (error) {
     console.error(error);
@@ -46,7 +44,7 @@ productsRouter.put('/:pid', async (req, res) => {
   try {
     const productId = req.params.pid;
     const updatedFields = req.body;
-    await productManager.updateProduct(productId, updatedFields);
+    await productModel.findByIdAndUpdate(productId, updatedFields);
     res.json({ message: 'Product updated successfully' });
   } catch (error) {
     console.error(error);
@@ -57,7 +55,7 @@ productsRouter.put('/:pid', async (req, res) => {
 productsRouter.delete('/:pid', async (req, res) => {
   try {
     const productId = req.params.pid;
-    await productManager.deleteProduct(productId);
+    await productModel.findByIdAndDelete(productId);
     res.json({ message: 'Product deleted successfully' });
   } catch (error) {
     console.error(error);
