@@ -5,8 +5,26 @@ const productsRouter = express.Router();
 
 productsRouter.get('/', async (req, res) => {
   try {
-    const products = await productModel.find();
-    res.json(products);
+
+    const { limit, page, filter, sort } = req.query;
+    let metFilter;
+    const pag = page != undefined ? page : 1;
+    const limi = limit != undefined ? limit : 10;
+
+    if (filter == "true" || filter == "false") {
+      metFilter = "status"
+    } else {
+      if (filter !== undefined)
+          metFilter = "category";
+    }
+
+    const query = metFilter != undefined ? { [metFilter]: filter } : {};
+        const sortQuery = sort !== undefined ? { price: sort } : {};
+
+    const products = await productModel.paginate(query, { limit: limi, page: pag, sort: sortQuery });
+    
+    res.status(200).send(products)
+    
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal Server Error' });

@@ -9,6 +9,7 @@ import { fileURLToPath } from 'url';
 import { engine } from 'express-handlebars';
 import productModel from "./models/productModel.js"
 import userRouter from './routers/userRouter.js';
+import viewsRouter from './routers/viewsRouter.js';
 
 const app = express();
 const port = 8080;
@@ -63,19 +64,6 @@ app.use('/static', express.static(join(__dirname, 'public')));
 app.use('/api/users', userRouter);
 app.use('/api/products', productsRouter);
 app.use('/api/carts', cartsRouter);
+app.use('/', viewsRouter);
 app.use('/img', express.static(join(__dirname, 'public', 'img')));
 app.use('/js', express.static(join(__dirname, 'public', 'js')));
-
-app.get('/', async (req, res) => {
-  try {
-    const initialProducts = await productModel.find({}).lean();
-    console.log(initialProducts);
-    res.render('templates/home', {
-      mostrarProductos: true,
-      products: initialProducts,
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).send('Error al obtener los productos');
-  }
-});
