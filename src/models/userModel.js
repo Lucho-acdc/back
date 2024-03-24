@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import bcrypt from 'bcrypt';
 
 const { Schema } = mongoose;
 
@@ -17,18 +18,31 @@ const userSchema = new Schema({
   },
   age: {
     type: Number,
-    required: true
+    // required: true
   },
   email: {
     type: String,
     unique: true,
     required: true
   },
-  rol: {
+  role: {
     type: String,
-    default: "User"
+    default: "user"
   }
 });
 
-const users = mongoose.model('users', userSchema);
-export default users;
+// Encriptar contraseña
+userSchema.pre('save', async function(next) {
+  if (this.isModified('password')) {
+    this.password = await bcrypt.hash(this.password, 10);
+  }
+  next();
+});
+
+// Comparar contraseñas
+userSchema.methods.comparePassword = async function(candidatePassword) {
+  return await bcrypt.compare(candidatePassword, this.password);
+};
+
+const User = mongoose.model('User', userSchema);
+export default User;

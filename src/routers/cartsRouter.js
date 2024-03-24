@@ -1,13 +1,18 @@
 import express from 'express';
 import cartsModel from '../models/cartsModel.js';
+import Product from '../models/productModel.js';
 
 const cartsRouter = express.Router();
 
 cartsRouter.post('/', async (req, res) => {
   try {
-    const newCart = new cartsModel(req.body);
-    await newCart.save();
-    res.status(201).json({ message: 'Cart created successfully', cartId: newCart._id });
+
+    const userId = req.session.userId;
+    const cartId = await cartsModel.create({ user: userId, products: [] });
+
+    req.session.cartId = cartId._id;
+    req.session.save();
+
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal Server Error' });
@@ -18,16 +23,14 @@ cartsRouter.post('/', async (req, res) => {
 
 cartsRouter.get('/:cid', async (req, res) => {
   try {
-
+    console.log(req.params)
     const cartId = req.params.cid;
-
     const cart = await cartsModel.findById(cartId).populate('products.id_prod');
-    console.log(cartId);
+
     if (!cart) {
-      res.status(404).json({ error: 'Cart not found' });
-    } else {
-      res.json(cart);
+      return res.status(404).json({ error: 'Cart not found' });
     }
+    res.json(cart);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal Server Error' });
@@ -37,32 +40,37 @@ cartsRouter.get('/:cid', async (req, res) => {
 
 // Agregar un producto 
 
-cartsRouter.post('/:cid/product/:pid', async (req, res) => {
+cartsRouter.post('/product/:pid', async (req, res) => {
   try {
-    const cartId = req.params.cid;
-    const productId = req.params.pid;
-    const quantity = req.body.quantity || 1;
-    
-    const cart = await cartsModel.findById(cartId);
+
+    const pid = req.params.pid;
+    const { quantity } = req.body;
+    const cartId = req.session.cartId;
+
+    let cart = await cartsModel.findById(cartId);
+
     if (!cart) {
-      return res.status(404).json({ message: 'Cart not found' });
+      return res.status(404).json({ message: "Carrito no encontrado." });
     }
 
-    const productExist = cart.products.findIndex(p => p.id_prod.toString() === productId);
+    const productIndex = cart.products.findIndex(item => item.id_prod.toString() === pid);
 
-    if (productExist > -1) {
-      cart.products[productExist].quantity += quantity;
+    if (productIndex > -1) {
+      console.log("sumo:" + quantity);
+      cart.products[productIndex].quantity += parseInt(quantity, 10);
     } else {
-      cart.products.push({ id_prod: productId, quantity });
+      console.log("ingreso:" + quantity);
+      cart.products.push({ id_prod: pid, quantity: parseInt(quantity, 10) });
     }
 
     await cart.save();
-    res.status(201).json({ message: 'Product added to cart successfully' });
+    res.redirect(`/carts/${cartId}`);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
+
 
 // Eliminar un producto
 
@@ -86,41 +94,45 @@ cartsRouter.delete('/:cid/products/:pid', async (req, res) => {
 
 // Actualizar la cantidad de un producto
 
-cartsRouter.put('/:cid/products/:pid', async (req, res) => {
+cartsRouter.put('/products/:pid', async (req, res) => {
   try {
-    const { cid, pid } = req.params;
+
+    const cartId = req.session.cartId;
+    const { pid } = req.params;
     const { quantity } = req.body;
 
     const cart = await cartsModel.findById(cid);
     if (!cart) {
-      return res.status(404).json({ error: 'Cart not found' });
+      return res.status(404).json({ error: 'Carrito no encontrado' });
     }
 
-    const productIndex = cart.products.findIndex(product => product.id_prod.toString() === pid);
+    const productIndex = cart.products.findIndex(product => product.id_prod === pid);
     if (productIndex > -1) {
       cart.products[productIndex].quantity = quantity;
-      await cart.save();
-      res.json({ message: 'Product quantity updated successfully' });
     } else {
-      res.status(404).json({ error: 'Product not found in cart' });
+      return res.status(404).json({ error: 'Producto no encontrado en el carrito' });
     }
+
+    await cart.save();
+    res.json({ message: 'Cantidad del producto actualizada con éxito' });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Internal Server Error' });
+    res.status(500).json({ error: 'Error interno del servidor' });
   }
 });
 
+
 // Eliminar todos los productos 
 
-cartsRouter.delete('/:cid', async (req, res) => {
+cartsRouter.post('/:cid/clear', async (req, res) => {
   try {
     const { cid } = req.params;
     const cart = await cartsModel.findByIdAndUpdate(cid, { $set: { products: [] } }, { new: true });
 
     if (cart) {
-      res.json({ message: 'All products removed from cart successfully' });
+      res.redirect(`/carts/:cid`);
     } else {
-      res.status(404).json({ error: 'Cart not found' });
+      res.status(404).json({ error: 'Carrito no encontrado' });
     }
   } catch (error) {
     console.error(error);

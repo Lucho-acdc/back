@@ -4,16 +4,29 @@ import Cart from '../models/cartsModel.js';
 
 const viewsRouter = express.Router();
 
-//Traigo el home para que no quede vacio
+viewsRouter.get('/', (req, res) => {
+  if (!req.session.user) {
+    return res.redirect('/login');
+  }
+  res.render('templates/home', { user: req.session.user, cartId: req.session.cartId });
+});
 
-viewsRouter.get('/', async (req, res) => {
-    try {
-      res.render('templates/home');
-    } catch (error) {
-      console.error(error);
-      res.status(500).send('Error al obtener los productos');
-    }
-  });
+viewsRouter.get('/login', async (req, res) => {
+  try {
+    res.render('templates/login');
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Error inesperado');
+  }
+});
+
+viewsRouter.get('/register', (req, res) => {
+  res.render('templates/register');
+});
+
+viewsRouter.get('/logout', (req, res) => {
+  res.render('templates/home');
+});
 
 viewsRouter.get('/products', async (req, res) => {
   const { page = 1, limit = 10 } = req.query;
@@ -24,7 +37,7 @@ viewsRouter.get('/products', async (req, res) => {
       .skip((page - 1) * limit)
       .exec();
 
-    res.render('templates/products', { products, page: parseInt(page), limit: parseInt(limit) });
+    res.render('templates/products', { products, page: parseInt(page), limit: parseInt(limit), cartId: req.session.cartId });
   } catch (error) {
     console.error(error);
     res.status(500).send('Error al obtener los productos');
@@ -34,8 +47,8 @@ viewsRouter.get('/products', async (req, res) => {
 
 viewsRouter.get('/products/:pid', async (req, res) => {
   try {
-    const product = await Product.findById(req.params.pid);
-    res.render('templates/productDetail', { product });
+    const product = await Product.findById(req.params.pid).lean();
+    res.render('templates/productDetail', { product, cartId: req.session.cartId });
   } catch (error) {
     console.error(error);
     res.status(500).send('Error al obtener el producto');
@@ -44,18 +57,29 @@ viewsRouter.get('/products/:pid', async (req, res) => {
 
 
 viewsRouter.get('/carts/:cid', async (req, res) => {
+
+  if (req.session.user && req.session.cartId) {
     try {
-        
-      const cart = await Cart.findById(req.params.cid).populate('products.id_prod');
-      if (!cart) {
-        return res.status(404).send('Carrito no encontrado');
+
+      const cart = await Cart.findById(req.session.cartId).populate('products.id_prod').lean();
+      if (cart) {
+    
+        return res.render('templates/cartDetail', { cart: cart, user: req.session.user });
+      } else {
+        return res.status(404).send('Carrito no creado.');
       }
-      res.render('templates/cartDetail', { cart });
     } catch (error) {
       console.error(error);
-      res.status(500).send(`Error al obtener el carrito: ${error.message}`);
+      return res.status(500).send(`Error al obtener el carrito: ${error.message}`);
     }
-  });
+  } else {
+    return res.redirect('/login');
+  }
+});
+
+viewsRouter.get('/chat', (req, res) => {
+    res.render('templates/chatBot', { user: req.session.user });
+});
   
   
 export default viewsRouter;

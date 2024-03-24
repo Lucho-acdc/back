@@ -1,2 +1,10 @@
+<h1>Bienvenido, {{user.name}}</h1>
+
+<li><a href="/chat">Ir al Chat</a></li>
 <li><a href="/products">Productos</a></li>
-<li><a href="/carts/:cid">Carrito</a></li>
+<li><a href="{{buildCartUrl cartId}}">Ver carrito</a>
+</li>
+
+<form action="/api/users/logout" method="POST">
+  <button type="submit">Cerrar Sesión</button>
+</form>
