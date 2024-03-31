@@ -1,7 +1,6 @@
 <a href="/">Home</a>
-<form action="/api/carts/{{cart._id}}/clear" method="post">
-  <button type="submit">Vaciar Carrito</button>
-</form>
+<a href="/products">Productos</a>
+<br>
 {{#if cart}}
   <h1>Carrito</h1>
   <ul>
@@ -16,3 +15,7 @@
 {{else}}
   <p>Error al cargar los detalles del carrito.</p>
 {{/if}}
+<br>
+<form action="/api/carts/{{cart._id}}/clear" method="post">
+  <button type="submit">Vaciar Carrito</button>
+</form>

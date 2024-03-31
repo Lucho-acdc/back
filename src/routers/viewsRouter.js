@@ -5,10 +5,11 @@ import Cart from '../models/cartsModel.js';
 const viewsRouter = express.Router();
 
 viewsRouter.get('/', (req, res) => {
-  if (!req.session.user) {
+  if (!req.session.passport) {
     return res.redirect('/login');
   }
-  res.render('templates/home', { user: req.session.user, cartId: req.session.cartId });
+
+  res.render('templates/home', { user: req.user.name, cartId: req.session.cartId });
 });
 
 viewsRouter.get('/login', async (req, res) => {
@@ -37,7 +38,7 @@ viewsRouter.get('/products', async (req, res) => {
       .skip((page - 1) * limit)
       .exec();
 
-    res.render('templates/products', { products, page: parseInt(page), limit: parseInt(limit), cartId: req.session.cartId });
+    res.render('templates/products', { products, page: parseInt(page), limit: parseInt(limit), user: req.user.name, cartId: req.session.cartId });
   } catch (error) {
     console.error(error);
     res.status(500).send('Error al obtener los productos');
@@ -58,13 +59,13 @@ viewsRouter.get('/products/:pid', async (req, res) => {
 
 viewsRouter.get('/carts/:cid', async (req, res) => {
 
-  if (req.session.user && req.session.cartId) {
+  if (req.session.passport.user && req.session.cartId) {
     try {
 
       const cart = await Cart.findById(req.session.cartId).populate('products.id_prod').lean();
       if (cart) {
     
-        return res.render('templates/cartDetail', { cart: cart, user: req.session.user });
+        return res.render('templates/cartDetail', { cart: cart, user: req.user.name });
       } else {
         return res.status(404).send('Carrito no creado.');
       }
@@ -78,7 +79,7 @@ viewsRouter.get('/carts/:cid', async (req, res) => {
 });
 
 viewsRouter.get('/chat', (req, res) => {
-    res.render('templates/chatBot', { user: req.session.user });
+    res.render('templates/chatBot', { user: req.user.name });
 });
   
   

@@ -1,17 +1,24 @@
 import express from 'express';
 import cartsModel from '../models/cartsModel.js';
-import Product from '../models/productModel.js';
 
 const cartsRouter = express.Router();
 
 cartsRouter.post('/', async (req, res) => {
   try {
 
-    const userId = req.session.userId;
+    
+    const userId = req.session.passport.user;
     const cartId = await cartsModel.create({ user: userId, products: [] });
+
+    console.log(userId);
+    console.log(cartId);
 
     req.session.cartId = cartId._id;
     req.session.save();
+
+    console.log(req.session);
+
+    
 
   } catch (error) {
     console.error(error);

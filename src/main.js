@@ -2,6 +2,8 @@ import express from 'express';
 import mongoose from 'mongoose';
 import session from 'express-session';
 import MongoStore from 'connect-mongo';
+import passport from 'passport';
+import initializePassport from './config/passport.js'
 
 import productsRouter from './routers/productsRouter.js';
 import cartsRouter from './routers/cartsRouter.js';
@@ -62,15 +64,7 @@ mongoose.connect("mongodb+srv://lucianohamoroso:proyectoCoderhouse@ecommerce.nrj
 
 const mongoUrl = "mongodb+srv://lucianohamoroso:proyectoCoderhouse@ecommerce.nrjqzf8.mongodb.net/ecommerce?retryWrites=true&w=majority&appName=ecommerce"
 
-// Solucion para los href en los handlebars.
-const buildCartUrl = (cartId) => '/carts/' + cartId;
-
-app.engine('handlebars', engine({
-  defaultLayout: 'main',
-  helpers: {
-    buildCartUrl: buildCartUrl,
-  },
-}));
+app.engine('handlebars', engine());
 
 app.set('view engine', 'handlebars');
 app.set('views', __dirname + '/views');
@@ -88,6 +82,10 @@ app.use((req, res, next) => {
   }
   next();
 });
+
+initializePassport()
+app.use(passport.initialize())
+app.use(passport.session())
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());

@@ -1,6 +1,5 @@
 <a href="/">Home</a>
 <a href="/products">Productos</a>
-<a href="{{buildCartUrl cartId}}">Ver carrito</a>
 <div>
     <h1>Titulo: {{product.title}}</h1>
     <p>Descripcion: {{product.description}}</p>
@@ -9,3 +8,5 @@
     <p>Categoria: {{product.category}}</p>
     {{!-- <img src="{{product.img}}" alt="Imagen de {{product.title}}"> --}}
 </div>
+<br>
+<a href="/carts/:cid">Ver carrito</a>
