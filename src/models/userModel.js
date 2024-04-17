@@ -12,18 +12,21 @@ const userSchema = new Schema({
     type: String,
     required: true
   },
+  email: {
+    type: String,
+    unique: true,
+    required: true
+  },
   password: {
     type: String,
     required: true
   },
   age: {
-    type: Number,
-    // required: true
+    type: Number
   },
-  email: {
-    type: String,
-    unique: true,
-    required: true
+  cart: {
+    type: Schema.Types.ObjectId,
+    ref: 'carts'
   },
   role: {
     type: String,
@@ -31,7 +34,7 @@ const userSchema = new Schema({
   }
 });
 
-// Encriptar contraseña
+// Encriptar contraseña antes de guardar
 userSchema.pre('save', async function(next) {
   if (this.isModified('password')) {
     this.password = await bcrypt.hash(this.password, 10);
@@ -39,7 +42,7 @@ userSchema.pre('save', async function(next) {
   next();
 });
 
-// Comparar contraseñas
+// Comparar contraseñas para autenticación
 userSchema.methods.comparePassword = async function(candidatePassword) {
   return await bcrypt.compare(candidatePassword, this.password);
 };
