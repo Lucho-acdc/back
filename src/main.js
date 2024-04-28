@@ -1,3 +1,4 @@
+import dotenv from 'dotenv';
 import express from 'express';
 import mongoose from 'mongoose';
 import session from 'express-session';
@@ -18,10 +19,10 @@ import { dirname, join } from 'path'; ;
 import { fileURLToPath } from 'url';
 import { engine } from 'express-handlebars';
 
-
+dotenv.config();
 
 const app = express();
-const port = 8080;
+const port = process.env.PORT;
 
 const server = app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
@@ -58,11 +59,11 @@ io.on('connection', async (socket) => {
 
 });
 
-mongoose.connect("mongodb+srv://lucianohamoroso:proyectoCoderhouse@ecommerce.nrjqzf8.mongodb.net/ecommerce?retryWrites=true&w=majority&appName=ecommerce")
+mongoose.connect(process.env.MONGO_DB)
 .then(() => console.log('Conexión a MongoDB establecida.'))
 .catch(err => console.error('Error al conectar a MongoDB', err));
 
-const mongoUrl = "mongodb+srv://lucianohamoroso:proyectoCoderhouse@ecommerce.nrjqzf8.mongodb.net/ecommerce?retryWrites=true&w=majority&appName=ecommerce"
+const mongoUrl = process.env.MONGO_DB
 
 app.engine('handlebars', engine());
 
@@ -70,7 +71,7 @@ app.set('view engine', 'handlebars');
 app.set('views', __dirname + '/views');
 
 app.use(session({
-  secret: 'superSecreto',
+  secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: true,
   store: MongoStore.create({ mongoUrl }),
