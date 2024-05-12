@@ -1,0 +1,23 @@
+<h1>Bienvenido, {{user}}</h1>
+<a href="/">Home</a>
+<form action="/api/users/logout" method="POST">
+  <button type="submit">Cerrar Sesión</button>
+</form>
+<h1>Productos</h1>
+<ul>
+  {{#each products}}
+  <li>
+    <h1>Titulo: {{this.title}}</h1>
+    <p>Descripcion: {{this.description}}</p>
+    <p>Precio: ${{this.price}}</p>
+    <p>Stock: {{this.stock}}</p>
+    <p>Categoria: {{this.category}}</p>
+    <a href="/products/{{this._id}}">Ver producto</a>
+    <form action="/api/carts/{{cartId}}/product/{{this._id}}" method="POST">
+      <input type="hidden" name="quantity" value="1">
+      <button type="submit">Agregar al Carrito</button>
+    </form>
+
+  </li>
+  {{/each}}
+</ul>
