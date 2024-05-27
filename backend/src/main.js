@@ -5,6 +5,7 @@ import session from 'express-session';
 import MongoStore from 'connect-mongo';
 import passport from 'passport';
 import initializePassport from './config/passport.js';
+import logger from './config/logger.js';
 
 import productsRouter from './routers/productsRouter.js';
 import cartsRouter from './routers/cartsRouter.js';
@@ -115,3 +116,10 @@ function checkAdmin(req, res, next) {
 app.post('/api/products', checkAdmin, productController.createProduct);
 app.delete('/api/products/:id', checkAdmin, productController.deleteProduct);
 
+app.get('/loggerTest', (req, res) => {
+  logger.debug('Este es un mensaje debug');
+  logger.info('Este es un mensaje info');
+  logger.warn('Este es un mensaje warning');
+  logger.error('Este es un mensaje error');
+  res.send('Logs generados, revisa la consola y el archivo errors.log si estás en producción');
+});
