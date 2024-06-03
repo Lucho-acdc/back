@@ -78,8 +78,10 @@ app.set('views', __dirname + '/views');
 app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
-  saveUninitialized: true,
-  store: MongoStore.create({ mongoUrl }),
+  saveUninitialized: false,
+  store: MongoStore.create({
+    mongoUrl: process.env.MONGO_DB
+  })
 }));
 
 app.use((req, res, next) => {
@@ -112,6 +114,10 @@ function checkAdmin(req, res, next) {
       res.status(403).send('Acceso denegado');
   }
 }
+
+app.get('/requestResetPassword', (req, res) => {
+  res.render('requestResetPassword');
+});
 
 app.post('/api/products', checkAdmin, productController.createProduct);
 app.delete('/api/products/:id', checkAdmin, productController.deleteProduct);

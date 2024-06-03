@@ -1,9 +1,15 @@
 import express from 'express';
-import { loginUser, logoutUser } from '../controllers/sessionController.js';
+import { renderRequestResetPassword, requestResetPassword, renderResetPassword, resetPassword, loginUser, logoutUser } from '../controllers/sessionController.js';
 
-const sessionRouter = express.Router();
+const router = express.Router();
 
-sessionRouter.post('/login', loginUser);
-sessionRouter.post('/logout', logoutUser);
+router.post('/login', loginUser);
+router.post('/logout', logoutUser);
 
-export default sessionRouter;
+router.get('/requestResetPassword', renderRequestResetPassword);
+router.post('/requestResetPassword', requestResetPassword);
+
+router.get('/resetPassword', renderResetPassword);
+router.post('/resetPassword', resetPassword);
+
+export default router;
