@@ -4,6 +4,7 @@ import mongoose from 'mongoose';
 import session from 'express-session';
 import MongoStore from 'connect-mongo';
 import passport from 'passport';
+import swaggerRouter from './swagger.js';
 import initializePassport from './config/passport.js';
 import logger from './config/logger.js';
 
@@ -106,6 +107,7 @@ app.use('/api', mockRouter);
 app.use('/', viewsRouter);
 app.use('/img', express.static(join(__dirname, 'public', 'img')));
 app.use('/js', express.static(join(__dirname, 'public', 'js')));
+app.use('/', swaggerRouter);
 
 function checkAdmin(req, res, next) {
   if (req.isAuthenticated() && req.user.role === 'admin') {
