@@ -131,3 +131,5 @@ app.get('/loggerTest', (req, res) => {
   logger.error('Este es un mensaje error');
   res.send('Logs generados, revisa la consola y el archivo errors.log si estás en producción');
 });
+
+export { app };

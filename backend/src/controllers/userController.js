@@ -7,7 +7,6 @@ import cartsModel from '../models/cartsModel.js';
 export const registerUser = async (req, res) => {
   const { name, lastname, email, password } = req.body;
   try {
-
     let newUser = new UserModel({ name, lastname, email, password });
     newUser = await newUser.save();
 
@@ -30,7 +29,7 @@ export const registerUser = async (req, res) => {
           return res.status(500).send(err);
         }
         const token = generateToken(newUser); 
-        res.redirect('/');
+        res.status(201).json({ user: newUser, token });
       });
     });
 
@@ -39,6 +38,7 @@ export const registerUser = async (req, res) => {
     return res.status(400).send(error);
   }
 };
+
 
 
 // GitHub
