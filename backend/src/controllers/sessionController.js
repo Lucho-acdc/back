@@ -66,42 +66,58 @@ export const loginUser = (req, res, next) => {
       console.log('Authentication failed:', info.message);
       return res.redirect('/login');
     }
-      req.logIn(user, async (err) => {
+    req.logIn(user, async (err) => {
+      if (err) {
+        console.error('Error logging in:', err);
+        return next(err);
+      }
+
+      user.last_connection = new Date();
+      await user.save();
+
+      // Verificar y crear carrito
+      let cart = await cartsModel.findOne({ user: user._id });
+      if (!cart) {
+        cart = await cartsModel.create({ user: user._id, products: [] });
+      }
+
+      req.session.cartId = cart._id;
+      req.session.save((err) => {
         if (err) {
-          console.error('Error logging in:', err);
-          return next(err);
+          console.error('Error saving session:', err);
+          return res.status(500).send(err);
         }
 
-        // Verificar y crear carrito
-        let cart = await cartsModel.findOne({ user: user._id });
-        if (!cart) {
-          cart = await cartsModel.create({ user: user._id, products: [] });
-        }
-
-        req.session.cartId = cart._id;
-        req.session.save((err) => {
-          if (err) {
-            console.error('Error saving session:', err);
-            return res.status(500).send(err);
-          }
-
-          const token = generateToken(user);
-          res.redirect('/');
-        });
+        const token = generateToken(user);
+        res.redirect('/');
       });
+    });
   })(req, res, next);
 };
 
 // Logout
-export const logoutUser = (req, res) => {
-  req.logout((err) => {
-    if (err) {
-      return next(err);
+export const logoutUser = async (req, res, next) => {
+  
+  try {
+    if (req.user) {
+      const user = await UserModel.findById(req.user._id);
+      if (user) {
+        user.last_connection = new Date();
+        await user.save();
+      }
     }
-    res.redirect('/login');
-  });
-};
 
+    req.logout((err) => {
+      if (err) {
+        return next(err);
+      }
+      res.redirect('/login');
+    });
+  } catch (error) {
+    console.error("Error during logout:", error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
 export const authenticate = (req, res, next) => {
 
   if (process.env.NODE_ENV === 'test') {
