@@ -1,117 +1,56 @@
 import express from 'express';
-import passport from 'passport';
-import UserModel from '../models/userModel.js';
-import bcrypt from 'bcrypt';
-import cartsModel from '../models/cartsModel.js';
+import multer from 'multer';
+import User from '../models/userModel.js';
+import { sendMail } from '../config/mailer.js';
+import { registerUser, uploadDocuments, authenticateGitHub, githubSession } from '../controllers/userController.js';
 
 const userRouter = express.Router();
 
-userRouter.post('/register', async (req, res) => {
-  try {
-      const { name, lastname, email, password } = req.body;
-      const hashedPassword = await bcrypt.hash(password, 10);
-      
-      let newUser = new UserModel({ name, lastname, email, password: hashedPassword });
-      newUser = await newUser.save();
-      console.log(newUser);
-
-      req.login(newUser, async (err) => {
-            if (err) {
-              console.error('Error:', err);
-              return res.status(500).send(err);
-            }
-      
-            let cart = await cartsModel.findOne({ user: newUser._id });
-            if (!cart) {
-              cart = await cartsModel.create({ user: newUser._id, products: [] });
-            }
-      
-            req.session.cartId = cart._id;
-            req.session.save();
-      
-            return res.redirect('/');
-      });
-  } catch (error) {
-      res.status(400).json({ message: error.message });
-  }
-});
-
-
-
-userRouter.post('/login', (req, res, next) => {
-  passport.authenticate('local', async (err, user, info) => {
-    if (err) {
-      console.error('Error during authentication:', err);
-      return next(err);
-    }
-    if (!user) {
-      console.log('Authentication failed:', info.message);
-      return res.redirect('/login');
-    }
-    req.logIn(user, async (err) => {
-      if (err) {
-        console.error('Error logging in:', err);
-        return next(err);
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+      if (file.fieldname === 'profile') {
+        cb(null, 'uploads/profiles');
+      } else if (file.fieldname === 'product') {
+        cb(null, 'uploads/products');
+      } else {
+        cb(null, 'uploads/documents');
       }
-
-      let cart = await cartsModel.findOne({ user: user._id });
-      if (!cart) {
-        cart = await cartsModel.create({ user: user._id, products: [] });
-      }
-
-      req.session.cartId = cart._id;
-      req.session.save();
-
-      return res.redirect('/');
-    });
-  })(req, res, next);
-});
-
-
-
-userRouter.post('/logout', (req, res) => {
-  req.logout(() => {
-      res.redirect('/login');
+    },
+    filename: (req, file, cb) => {
+      cb(null, `${Date.now()}-${file.originalname}`);
+    }
   });
-});
+  
+const upload = multer({ storage });
 
-
-userRouter.get('/github', passport.authenticate('github', { scope: ['user:email'] }), async (req, res) => { r })
-
-userRouter.get('/githubSession', passport.authenticate('github', { failureRedirect: '/login' }), async (req, res) => {
-
-  if (!req.user) {
-      console.error('No user found after GitHub auth');
-      return res.redirect('/login');
-  }
-
-  req.session.user = {
-      email: req.user.email,
-      name: req.user.name
-  };
-
+userRouter.get('/', async (req, res) => {
   try {
-      let cart = await cartsModel.findOne({ user: req.user._id });
-      
-      if (!cart) {
-          cart = await cartsModel.create({ user: req.user._id, products: [] });
-          console.log('New cart created for GitHub user:', cart);
-      }
-
-      req.session.cartId = cart._id;
-      req.session.save(err => {
-          if (err) {
-              console.error('Error saving session:', err);
-              return res.status(500).send('Error saving session');
-          }
-          res.redirect('/');
-      });
-  } catch (error) {
-      console.error('Error GitHub session:', error);
-      res.status(500).send('Error GitHub session');
+    const users = await User.find({}, 'name email role').lean();
+    res.json(users);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 });
 
+userRouter.delete('/', async (req, res) => {
+  try {
+    const twoDays = new Date (Date.now() - 2 * 24 * 60 * 60 * 1000);
+    const inactiveUsers = await User.find({ last_connection: { $lt: twoDays } });
 
+    inactiveUsers.forEach(async (user) => {
+      await sendMail(user.email, 'Cuenta eliminada por inactividad', `Hola ${user.name}, tu cuenta ha sido eliminada por inactividad.`);
+      await user.remove();
+    });
+
+    res.status(200).json({ message: 'Usuarios inactivos eliminados' }); 
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+userRouter.post('/register', registerUser);
+userRouter.get('/github', authenticateGitHub);
+userRouter.get('/githubSession', githubSession);
+userRouter.post('/:uid/documents', upload.array('documents'), uploadDocuments);
 
 export default userRouter;

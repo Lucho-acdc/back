@@ -31,7 +31,14 @@ const userSchema = new Schema({
   role: {
     type: String,
     default: "user"
-  }
+  },
+  documents: [
+    {
+      name: String,
+      reference: String,
+    },
+  ],
+  last_connection: Date,
 });
 
 // Encriptar contraseña antes de guardar
