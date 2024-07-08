@@ -11,6 +11,17 @@ const transporter = nodemailer.createTransport({
   }
 });
 
+export const sendMail = (to, subjet, htmlContent) => {
+  const mailOptions = {
+    from: process.env.EMAIL_USER,
+    to,
+    subjet,
+    html: htmlContent
+  };
+
+  return transporter.sendMail(mailOptions);
+};
+
 export const sendResetPasswordEmail = (to, token) => {
   const resetLink = `http://localhost:8080/api/session/resetPassword?token=${token}`;
 

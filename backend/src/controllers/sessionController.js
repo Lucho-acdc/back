@@ -88,6 +88,8 @@ export const loginUser = (req, res, next) => {
           return res.status(500).send(err);
         }
 
+        console.log(`Cart ID for user ${user.email}: ${req.session.cartId}`);
+
         const token = generateToken(user);
         res.redirect('/');
       });
@@ -118,13 +120,19 @@ export const logoutUser = async (req, res, next) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
-export const authenticate = (req, res, next) => {
 
+export const authenticate = (req, res, next) => {
   if (process.env.NODE_ENV === 'test') {
     return next();
   }
 
-  const token = req.header('Authorization').replace('Bearer ', '');
+  const authHeader = req.header('Authorization');
+
+  if (!authHeader) {
+    return res.status(401).json({ message: 'Unauthorized' });
+  }
+
+  const token = authHeader.replace('Bearer ', '');
 
   try {
     const decoded = verifyToken(token);

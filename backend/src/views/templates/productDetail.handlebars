@@ -6,7 +6,27 @@
     <p>Precio: ${{product.price}}</p>
     <p>Stock: {{product.stock}}</p>
     <p>Categoria: {{product.category}}</p>
-    {{!-- <img src="{{product.img}}" alt="Imagen de {{product.title}}"> --}}
 </div>
 <br>
+    <form action="/api/carts/{{cartId}}/product/{{product._id}}" method="POST">
+      <input type="hidden" name="quantity" value="1">
+      <button type="submit">Agregar al Carrito</button>
+    </form>
 <a href="/carts/:cid">Ver carrito</a>
+
+{{#if isAdmin}}
+  <h2>Acciones de administrador</h2>
+  <form action="/api/products/{{product._id}}/update" method="POST">
+    <input type="text" name="title" value="{{product.title}}" placeholder="Nombre del Producto">
+    <input type="text" name="description" value="{{product.description}}" placeholder="Descripción">
+    <input type="number" name="price" value="{{product.price}}" placeholder="Precio">
+    <input type="text" name="category" value="{{product.category}}" placeholder="Categoría">
+    <input type="number" name="stock" value="{{product.stock}}" placeholder="Stock">
+    <button type="submit">Actualizar Producto</button>
+  </form>
+
+  <form action="/api/products/{{product._id}}/delete" method="POST">
+    <button type="submit">Eliminar Producto</button>
+  </form>
+
+{{/if}}

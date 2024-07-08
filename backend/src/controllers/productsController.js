@@ -68,7 +68,7 @@ export const createProduct = async (req, res) => {
         const newProduct = req.body;
         await productModel.create(newProduct);
         logger.info('Producto creado correctamente:', newProduct);
-        res.status(201).json({ message: 'Product added successfully' });
+        res.redirect('/products');
     } catch (error) {
         logger.error('Error al crear producto:', error);
         res.status(500).json({ error: 'Internal Server Error' });
@@ -81,7 +81,7 @@ export const updateProduct = async (req, res) => {
         const updatedFields = req.body;
         await productModel.findByIdAndUpdate(productId, updatedFields);
         logger.info(`Producto ${productId} actualizado correctamente`);
-        res.json({ message: 'Product updated successfully' });
+        res.redirect(`/products/${productId}`);
     } catch (error) {
         logger.error(`Error al actualizar el producto ${req.params.pid}:`, error);
         res.status(500).json({ error: 'Internal Server Error' });
@@ -93,7 +93,7 @@ export const deleteProduct = async (req, res) => {
         const productId = req.params.pid;
         await productModel.findByIdAndDelete(productId);
         logger.info(`Producto ${productId} eliminado correctamente`);
-        res.json({ message: 'Product deleted successfully' });
+        res.redirect('/products');
     } catch (error) {
         logger.error(`Error al eliminar el producto ${req.params.pid}:`, error);
         res.status(500).json({ error: 'Internal Server Error' });

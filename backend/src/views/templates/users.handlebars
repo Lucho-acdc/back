@@ -1,0 +1,29 @@
+<h1>Administrar Usuarios</h1>
+<div>
+  {{#each users}}
+    <div>
+
+      <div>
+        <p><strong>Nombre:</strong> {{this.name}}</p>
+        <p><strong>Email:</strong> {{this.email}}</p>
+        <p><strong>Rol:</strong> {{this.role}}</p>
+      </div>
+
+      <div>
+        <form action="/admin/users/update-role" method="POST">
+          <input type="hidden" name="userId" value="{{this._id}}">
+          <select name="newRole">
+            <option value="user">User</option>
+            <option value="admin">Admin</option>
+          </select>
+          <button type="submit">Actualizar Rol</button>
+        </form>
+        <form action="/admin/users/delete" method="POST">
+          <input type="hidden" name="userId" value="{{this._id}}">
+          <button type="submit">Eliminar</button>
+        </form>
+      </div>
+      
+    </div>
+  {{/each}}
+</div>

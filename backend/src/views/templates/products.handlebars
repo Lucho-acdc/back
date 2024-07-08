@@ -1,8 +1,3 @@
-<h1>Bienvenido, {{user}}</h1>
-<a href="/">Home</a>
-<form action="/api/users/logout" method="POST">
-  <button type="submit">Cerrar Sesión</button>
-</form>
 <h1>Productos</h1>
 <ul>
   {{#each products}}
@@ -13,7 +8,7 @@
     <p>Stock: {{this.stock}}</p>
     <p>Categoria: {{this.category}}</p>
     <a href="/products/{{this._id}}">Ver producto</a>
-    <form action="/api/carts/{{cartId}}/product/{{this._id}}" method="POST">
+    <form action="/api/carts/{{@root.cartId}}/product/{{this._id}}" method="POST">
       <input type="hidden" name="quantity" value="1">
       <button type="submit">Agregar al Carrito</button>
     </form>
@@ -21,3 +16,16 @@
   </li>
   {{/each}}
 </ul>
+
+{{#if isAdmin}}
+  <h2>Acciones de administrador</h2>
+  <form action="/api/products/create" method="POST">
+    <input type="text" name="title" placeholder="Nombre del Producto">
+    <input type="text" name="description" placeholder="Descripción">
+    <input type="number" name="price" placeholder="Precio">
+    <input type="text" name="category" placeholder="Categoría">
+    <input type="number" name="stock" placeholder="Stock">
+    <input type="text" name="code" placeholder="Código">
+    <button type="submit">Crear Nuevo Producto</button>
+  </form>
+{{/if}}

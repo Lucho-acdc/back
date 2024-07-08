@@ -5,10 +5,11 @@ import cartsModel from '../models/cartsModel.js';
 
 // Nuevo usuario
 export const registerUser = async (req, res) => {
-  const { name, lastname, email, password } = req.body;
+  const { name, lastname, email, password, admin} = req.body;
   try {
     // Crear un nuevo usuario
-    let newUser = new UserModel({ name, lastname, email, password });
+    const role = admin ? 'admin' : 'user'
+    let newUser = new UserModel({ name, lastname, email, password, role });
     newUser = await newUser.save();
 
     req.login(newUser, async (err) => {
@@ -30,7 +31,7 @@ export const registerUser = async (req, res) => {
           return res.status(500).send(err);
         }
         const token = generateToken(newUser); 
-        res.status(201).json({ user: newUser, token });
+        res.redirect('/');
       });
     });
 
@@ -119,5 +120,34 @@ export const uploadDocuments = async (req, res) => {
   } catch (error) {
     console.error('Error al subir documentos:', error);
     res.status(500).send({ error: 'Error interno del servidor' });
+  }
+};
+
+export const getAllUsers = async () => {
+  try {
+    const users = await UserModel.find({}, 'name email role').lean();
+    return users;
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+export const updateUserRole = async (req, res) => {
+  try {
+    const { userId, newRole } = req.body;
+    await UserModel.findByIdAndUpdate(userId, { role: newRole });
+    res.redirect('/admin/users');
+  } catch (err) {
+    req.status(500).json({ message: err.message });
+  }
+};
+
+export const deleteUser = async (req, res) => {
+  try {
+    const { userId } = req.body;
+    await UserModel.findByIdAndDelete(userId);
+    res.redirect('/admin/users');
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 };
