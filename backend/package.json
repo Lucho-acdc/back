@@ -23,7 +23,7 @@
         "yamljs": "^0.3.0"
     },
     "scripts": {
-        "start": "nodemon src/main.js",
+        "start": "node src/main.js",
         "test": "cross-env NODE_ENV=test mocha 'test/**/*.test.js'"
     },
     "devDependencies": {
